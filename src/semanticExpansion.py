@@ -41,8 +41,8 @@ def find_entity(line):
         answerList.append(result['id'])
     return answerList                           
 
-def expandSemantically(text, acronym):
-    #I guess it needs acronymsAndTheirSentences to see which acronyms are to be expanded.
+def expandSemantically(acronym):
+    expansion = "TEMP EXPANSION" # Placeholder added by Leo to make things work for now
     entity =  find_entity(acronym)
     query = create_query(entity[0])
     result = run_query(query)
@@ -50,3 +50,5 @@ def expandSemantically(text, acronym):
     # TODO: Add result to text function
     print(result)
     # return text
+    
+    return expansion

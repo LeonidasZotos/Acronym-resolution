@@ -1,6 +1,6 @@
 
 
-def acronymAndContexts(text):
+def acronymsAndContexts(text):
     # returns the acronyms and their contexts in a list of tuples
     # where each tuple is (acronym, context)
     # context is a list of sentences where the acronym appears
@@ -28,6 +28,6 @@ def acronymAndContexts(text):
             # if the word is an acronym
             if word.isupper():
                 # add the acronym and its context to the list
-                acronymsAndTheirSentences.append((word, sentences))
+                acronymsAndTheirSentences.append((word, sentence))
 
     return acronymsAndTheirSentences

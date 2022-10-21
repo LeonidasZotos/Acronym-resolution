@@ -14,5 +14,5 @@ if __name__ == "__main__":
     
     semanticExpText = expandSemantically(expandedText, acronymsAndTheirSentences)
     
-    #export the expanded text to a file called output.txt
+    # export the expanded text to a file called output.txt
     open("output.txt", "w").write(semanticExpText)

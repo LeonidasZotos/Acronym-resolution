@@ -1,5 +1,7 @@
+# mac redundant file
 .DS_Store
-
+# Temporary test input
+input.txt 
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

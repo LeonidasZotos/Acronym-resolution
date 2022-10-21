@@ -135,3 +135,6 @@ dmypy.json
 
 # zip files
 .zip
+
+# bin files
+.bin

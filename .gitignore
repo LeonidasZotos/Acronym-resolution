@@ -136,5 +136,5 @@ dmypy.json
 # zip files
 .zip
 
-# bin files
-.bin
+# Bin model
+src/model/model_0.bin

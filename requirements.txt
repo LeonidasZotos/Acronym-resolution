@@ -1,0 +1,6 @@
+numpy==1.23.4
+requests==2.27.1
+tokenizers==0.12.1
+torch==1.12.1
+transformers==4.19.4
+urllib3==1.26.9

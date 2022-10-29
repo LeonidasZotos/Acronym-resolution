@@ -39,16 +39,28 @@ def find_entity(line):
     answerList = []
     for result in json['search']:
         answerList.append(result['id'])
-    return answerList                           
+    return answerList          
+
+## This function scrapes wikidata for the description of the entity
+def scrape_for_description(query):
+
+    url='https://www.wikidata.org/wiki/' + query
+    req=requests.get(url)
+    content=req.text
+    description = re.findall('<div class="wikibase-entitytermsview-heading-description ">.*?<\/div>', str(content))
+    description = re.sub('<div class="wikibase-entitytermsview-heading-description ">', '', str(description)) 
+    description = re.sub('<\/div>', '', str(description))
+
+    return description                 
 
 def expandSemantically(acronym):
-    expansion = "TEMP EXPANSION" # Placeholder added by Leo to make things work for now
-    # entity =  find_entity(acronym)
+    
+    entity =  find_entity(acronym)
+    description = scrape_for_description(entity[0])
     # query = create_query(entity[0])
     # result = run_query(query)
     
-    # # TODO: Add result to text function
-    # print(result)
     # # return text
+    expansion = str(description) # Placeholder added by Leo to make things work for now
     
     return expansion

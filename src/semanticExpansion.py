@@ -70,15 +70,16 @@ def expandSemantically(acronym):
     properties = ['P31', 'P361', 'P366', 'P1889']
     results = []
     entities =  find_entity(acronym)
-    description = scrape_for_information(entities[0], 'https://www.wikidata.org/wiki/', '<div class="wikibase-entitytermsview-heading-description ">', '<\/div>')
-    for q_property in properties:
-      query = create_query(entities[0], q_property)
-      result = run_query(query)
-      if result:
-        property_text = scrape_for_information(q_property, 'https://www.wikidata.org/wiki/Property:', '<span class="wikibase-title-label">', '</span>')
-        results.append(property_text + " " + str(result[0]))
-    
-    # # return text
-    expansion = str(description) + ', ' + acronym + ' has the following properties: ' + str(results)
-    
+    if entities:
+        description = scrape_for_information(entities[0], 'https://www.wikidata.org/wiki/', '<div class="wikibase-entitytermsview-heading-description ">', '<\/div>')
+        for q_property in properties:
+            query = create_query(entities[0], q_property)
+            result = run_query(query)
+            if result:
+                property_text = scrape_for_information(q_property, 'https://www.wikidata.org/wiki/Property:', '<span class="wikibase-title-label">', '</span>')
+                results.append(property_text + " " + str(result[0]))
+        expansion = str(description) + ', ' + acronym + ' has the following properties: ' + str(results)
+    else:
+        expansion = "No additional information found for " + acronym
+
     return expansion

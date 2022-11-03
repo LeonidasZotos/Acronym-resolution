@@ -1,4 +1,5 @@
 import sys
+import os
 
 from utils import cleanText, cleanSentence
 from acronymDisambiguator import disambiguateAcronym
@@ -21,10 +22,10 @@ def expandAcronymInSentence(sentence):
             originalSentence = originalSentence.replace(word, fullExpansion)
     return originalSentence
 
-
-if __name__ == "__main__":
-    # Extract text from text file of the 1st argument
-    text = open(sys.argv[1], "r").read()
+def expanInputFile(pathToTextFile):
+    # Get text from file
+    text = open(pathToTextFile, "r").read()
+    fileName = pathToTextFile.split("/")[-1]
     
     print("Cleaning sentences...")
     sentences = cleanText(text)
@@ -41,5 +42,21 @@ if __name__ == "__main__":
 
     print("Acronyms expanded.")
     
-    # export the expanded text to a file called output.txt
-    open("output.txt", "w").write(expandedText)
+    # make sure the output directory exists
+    if not os.path.exists("output"):
+        os.makedirs("output")
+
+    # export the expanded text to a file called in the same way as the input
+    outputLocation = "output/" + fileName
+    open(outputLocation, "w").write(expandedText)
+
+if __name__ == "__main__":
+    # Extract text from text file of the 1st argument
+    pathToInputFolder = sys.argv[1]
+    
+    # for each file in the folder, run expandInputFile
+    for file in os.listdir(pathToInputFolder):
+        if file.endswith(".txt"):
+            print("Expanding acronyms in " + file)
+            expanInputFile(pathToInputFolder + "/" + file)
+            print("Acronyms expanded in " + file)

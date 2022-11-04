@@ -67,7 +67,7 @@ def scrape_for_information(input, url, htmlstart, htmlend):
           
 
 def expandSemantically(acronym):
-    properties = ['P31', 'P361', 'P366', 'P1889']
+    properties = {'P31' : 'is an instance of ', 'P361': 'is a part of ', 'P366': 'has use ', 'P1889': 'is different from '}
     results = []
     entities =  find_entity(acronym)
     if entities:
@@ -76,8 +76,7 @@ def expandSemantically(acronym):
             query = create_query(entities[0], q_property)
             result = run_query(query)
             if result:
-                property_text = scrape_for_information(q_property, 'https://www.wikidata.org/wiki/Property:', '<span class="wikibase-title-label">', '</span>')
-                results.append(property_text + " " + str(result[0]))
+                results.append(properties[q_property] + str(result[0]))
         expansion = str(description) + ', ' + acronym + ' has the following properties: ' + str(results)
     else:
         expansion = "No additional information found for " + acronym

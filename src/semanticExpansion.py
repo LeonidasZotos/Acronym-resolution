@@ -2,6 +2,7 @@ import re
 import sys
 import requests
 import urllib3
+import soup
 
 ## This function sets up the queries, using the input data.
 def create_query(X, Y):
@@ -56,8 +57,9 @@ def find_property(line):
 
 ## This function scrapes wikidata for the description of the entity, or the name of the property
 def scrape_for_information(input, url, htmlstart, htmlend):
+  custom_user_agent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"
   input_url = url + input
-  req=requests.get(input_url)
+  req=requests.get(input_url, headers={'User-Agent': custom_user_agent})
   soup=req.text
   output = re.findall(htmlstart + '.*?' + htmlend, str(soup))
   output = re.sub(htmlstart, '', str(output))
@@ -65,7 +67,6 @@ def scrape_for_information(input, url, htmlstart, htmlend):
 
   return output
           
-
 def expandSemantically(acronym):
     properties = {'P31' : 'is an instance of ', 'P361': 'is a part of ', 'P366': 'has use ', 'P1889': 'is different from '}
     results = []

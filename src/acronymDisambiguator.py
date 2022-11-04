@@ -7,16 +7,8 @@ import tokenizers
 
 from model import BertAD
 
-DICTIONARY = json.load(open('model/dict.json'))
-TOKENIZER = tokenizers.BertWordPieceTokenizer(f"model/vocab.txt", lowercase=True)
-MAX_LEN = 256
-MODEL = BertAD()
-vec = MODEL.state_dict()['bert.embeddings.position_ids']
-chkp = torch.load(os.path.join('model', 'model_0.bin'), map_location='cpu')
-chkp['bert.embeddings.position_ids'] = vec
-MODEL.load_state_dict(chkp)
-del chkp, vec
-    
+DICTIONARY = json.load(open('model/dict.json')) 
+
 def sample_text(text, acronym, max_len):
     text = text.split()
     idx = text.index(acronym)
@@ -122,7 +114,17 @@ def evaluate_jaccard(text, selected_text, acronym, offsets, idx_start, idx_end):
     return candidate_jaccards[idx], candidates[idx]
 
 def disambiguate(text, acronym):
+    MODEL = BertAD()
+    vec = MODEL.state_dict()['bert.embeddings.position_ids']
+    chkp = torch.load(os.path.join('model', 'model_0.bin'), map_location='cpu')
+    chkp['bert.embeddings.position_ids'] = vec
+    MODEL.load_state_dict(chkp)
+    del chkp, vec
     
+    TOKENIZER = tokenizers.BertWordPieceTokenizer(f"model/vocab.txt", lowercase=True)
+    MAX_LEN = 256
+
+
     inputs = process_data(text, acronym, acronym, TOKENIZER, MAX_LEN)
     ids = torch.tensor(inputs['ids'])
     mask = torch.tensor(inputs['mask'])

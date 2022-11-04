@@ -2,7 +2,6 @@ import re
 import sys
 import requests
 import urllib3
-import soup
 
 ## This function sets up the queries, using the input data.
 def create_query(X, Y):

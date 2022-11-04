@@ -138,3 +138,6 @@ dmypy.json
 
 # Bin model
 src/model/model_0.bin
+
+# Data
+data/

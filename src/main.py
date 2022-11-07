@@ -1,7 +1,9 @@
+import re
 import sys
 import os
 import json
 import pandas as pd
+import numpy as np
 
 import acronymDisambiguator
 from utils import cleanText, cleanSentence
@@ -12,10 +14,12 @@ OUTPUT_FOLDER = "../output/"
 def expandAcronymInSentence(sentence):
     originalSentence = sentence # save the original sentence so we can replace the acronym with the expanded version
     sentence = cleanSentence(sentence)
+    # initialise a 2d array to store the acronyms and their expansions
+    expansionsInSentence = []
     
     for word in sentence: 
         # check if the word is an acronym and expand it if it is and it has no brackets
-        if word.isupper() and len(word) > 1 and word.find("(") == -1: 
+        if re.match(r'^[A-Z][A-Z0-9-]+$', word) and len(word) > 1 and word.find("(") == -1: 
             # First, find which expansion is appropriate
             expandedAcronym = acronymDisambiguator.disambiguateAcronym(word, originalSentence)
             # Then, find the semantic expansion of the acronym
@@ -24,8 +28,10 @@ def expandAcronymInSentence(sentence):
             fullExpansion = expandedAcronym + "(" + semanticExpansion + ")"
             # replace the acronym with the full expansion
             originalSentence = originalSentence.replace(word, fullExpansion)
+            # add the acronym and its expansion to the list
+            expansionsInSentence.append((word, expandedAcronym.lower()))
             
-    return originalSentence
+    return originalSentence, expansionsInSentence
 
 def expandInputTextFile(pathToTextFile):
     # Get text from file
@@ -40,7 +46,8 @@ def expandInputTextFile(pathToTextFile):
     expandedText = [] # list of sentences with acronyms expanded
     for sentence in sentences:
         # append expanded sentence to expandedText
-        expandedText.append(expandAcronymInSentence(sentence))
+        expandedAcronym, _ = expandAcronymInSentence(sentence)
+        expandedText.append(expandedAcronym)
 
     # convert list of sentences to string
     expandedText = " ".join(expandedText)
@@ -87,6 +94,7 @@ if __name__ == "__main__":
             inputScvFile = pd.read_csv(pathToInputFolder + "/" + file)
             print("Expanding acronyms in csv file" + file)
             total_acronyms = 0
+            disambiguated_acronyms = 0
             expanded_acronyms = 0
             # iterate over the rows of the csv file
             for index, row in inputScvFile.iterrows():
@@ -95,17 +103,24 @@ if __name__ == "__main__":
                 # get the text from the row
                 text = row['text']
                 # expand the acronyms in the text
-                expandedText = expandAcronymInSentence(text)
+                expandedText, acronymsAndExpansions = expandAcronymInSentence(text)
+                #check if the acronyms were disambiguated correctly
+                
+                acronymsAndExpansions = np.array(acronymsAndExpansions)
+                if row['expansion'] in acronymsAndExpansions:
+                    disambiguated_acronyms += 1
+                    
+                #check if the acronyms were expanded correctly
                 if not "No additional information found for" in expandedText:
                     expanded_acronyms += 1
                 # add the expanded text in the same row in a new column
                 inputScvFile.at[index, 'fullyExpandedText'] = expandedText
                 print("Expanded text for sentence with id: " + str(row['id']) + " has been stored.")
+                
                 # export the expanded text to a file called in the same way as the input
                 outputLocation = OUTPUT_FOLDER + file
                 # store and export csv file
                 inputScvFile.to_csv(outputLocation, index=False)
-            print("Acronym expansion done. " + str(expanded_acronyms) + " out of " + str(total_acronyms) + " were expanded, this is " + str(expanded_acronyms/total_acronyms*100) + "%.")
+            print("Acronym disambiguation done. " + str(disambiguated_acronyms) + " out of " + str(total_acronyms) + " were disambiguated, this is " + str(round(disambiguated_acronyms/total_acronyms*100, 2)) + "%.")
+            print("Acronym expansion done. " + str(expanded_acronyms) + " out of " + str(total_acronyms) + " were expanded, this is " + str(round(expanded_acronyms/total_acronyms*100, 2)) + "%.")
                 
-                
-

@@ -1,6 +1,0 @@
-Experience in the interpretation of physiological signals (EEG, EGC, HR, sp02, etc)
-Excellent Python programming skills following best practices
-Good familiarity with Matlab and popular statistical packages such as SPSS
-Good familiarity with cloud based data analysis environments such as AWS SageMaker
-Excellent data presentation and visualisation skills.
-Passionate about data and AI

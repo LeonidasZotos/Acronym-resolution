@@ -23,11 +23,14 @@ def expandAcronymInSentence(sentence):
             # First, find which expansion is appropriate
             expandedAcronym = acronymDisambiguator.disambiguateAcronym(word, originalSentence)
             # Then, find the semantic expansion of the acronym
-            semanticExpansion = expandSemantically(expandedAcronym)
+            try:
+                semanticExpansion = expandSemantically(expandedAcronym)
+            except:
+                semanticExpansion = "ERROR while looking up semantic expansion"
             # Finally, replace the acronym with the acronym expansion and the semantic expansion
             fullExpansion = expandedAcronym + "(" + semanticExpansion + ")"
             # replace the acronym with the full expansion
-            originalSentence = originalSentence.replace(word, fullExpansion)
+            originalSentence = originalSentence.replace(word, fullExpansion, 1)
             # add the acronym and its expansion to the list
             expansionsInSentence.append((word, expandedAcronym.lower()))
             
@@ -78,7 +81,6 @@ if __name__ == "__main__":
     acronymDisambiguator.DICTIONARY = json.load(open('../' + acronymDisambiguator.DATASET + '/dict.json')) 
 
     # Make sure that the output folder exists. If not, create it.
-    
     if not os.path.exists(OUTPUT_FOLDER):
         os.makedirs(OUTPUT_FOLDER)
     
@@ -115,12 +117,10 @@ if __name__ == "__main__":
                     expanded_acronyms += 1
                 # add the expanded text in the same row in a new column
                 inputScvFile.at[index, 'fullyExpandedText'] = expandedText
-                print("Expanded text for sentence with id: " + str(row['id']) + " has been stored.")
                 
-                # export the expanded text to a file called in the same way as the input
-                outputLocation = OUTPUT_FOLDER + file
-                # store and export csv file
-                inputScvFile.to_csv(outputLocation, index=False)
+            # export the expanded text to a file called in the same way as the input
+            outputLocation = OUTPUT_FOLDER + file
+            # store and export csv file
+            inputScvFile.to_csv(outputLocation, index=False)
             print("Acronym disambiguation done. " + str(disambiguated_acronyms) + " out of " + str(total_acronyms) + " were disambiguated, this is " + str(round(disambiguated_acronyms/total_acronyms*100, 2)) + "%.")
             print("Acronym expansion done. " + str(expanded_acronyms) + " out of " + str(total_acronyms) + " were expanded, this is " + str(round(expanded_acronyms/total_acronyms*100, 2)) + "%.")
-                

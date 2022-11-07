@@ -115,16 +115,29 @@ def evaluate_jaccard(text, selected_text, acronym, offsets, idx_start, idx_end):
     return candidate_jaccards[idx], candidates[idx]
 
 def disambiguate(text, acronym):
+    # Change size of NN here
+    if DATASET == 'science':
+        with open("./model/config.json", "r") as jsonFile:
+            tempConfig = json.load(jsonFile)
+            tempConfig["vocab_size"] = 31090
+        with open("./model/config.json", "w") as jsonFile:
+            json.dump(tempConfig, jsonFile)
+    else:
+        with open("./model/config.json", "r") as jsonFile:
+            tempConfig = json.load(jsonFile)
+            tempConfig["vocab_size"] = 30522
+        with open("./model/config.json", "w") as jsonFile:
+            json.dump(tempConfig, jsonFile)
+    
     MODEL = BertAD()
     vec = MODEL.state_dict()['bert.embeddings.position_ids']
     chkp = torch.load(os.path.join('model', MODEL_NAME), map_location='cpu')
     chkp['bert.embeddings.position_ids'] = vec
     MODEL.load_state_dict(chkp)
+
     del chkp, vec
     TOKENIZER = tokenizers.BertWordPieceTokenizer(f"../" + DATASET + "/bert-base-uncased-vocab.txt", lowercase=True)
     MAX_LEN = 256
-
-
     inputs = process_data(text, acronym, acronym, TOKENIZER, MAX_LEN)
     ids = torch.tensor(inputs['ids'])
     mask = torch.tensor(inputs['mask'])
@@ -154,7 +167,7 @@ def disambiguateAcronym(acronym, sentence):
         expansion = disambiguate(sentence, acronym)
         print("The expansion of ", acronym, "is: ", expansion)
     except:
-        print("ERROR: Acronym", acronym, "not found in dictionary")
+        print("ERROR: Acronym", acronym, "not found in dictionary, or some other error occurred.")
         return("NO EXPANSION FOUND")
     
     return expansion.title() #return the expansion with the first letter capitalized

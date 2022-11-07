@@ -1,3 +1,5 @@
+import pandas as pd
+import sys
 import json
 import os
 import numpy as np
@@ -6,6 +8,7 @@ import transformers
 import tokenizers
 
 from model import BertAD
+OUTPUT_FOLDER = "../testFolder/output"
 DATASET = ' ' # 'science' or 'scienceMed'
 MODEL_NAME = ' ' # 'scienceModel.bin' or 'scienceMedModel.bin'
 DICTIONARY =  { ' ' : [ ' ' ] } # Empty dictionary for now
@@ -157,4 +160,65 @@ def disambiguateAcronym(acronym, sentence):
         print("ERROR: Acronym", acronym, "not found in dictionary")
         return("NO EXPANSION FOUND")
     
-    return expansion.title() #return the expansion with the first letter capitalized
+    return expansion #return the expansion with the first letter capitalized
+
+
+if __name__ == "__main__":
+    ###ARGUMENTS###
+    # 1: path to folder where test file is
+    # 2: name of dataset used ["scienceMed" or "science"]
+    
+    # Determine which model & dictionary to use
+    
+    pathToTestFile = sys.argv[1] 
+    DATASET = sys.argv[2] # science or scienceMed
+    if DATASET == 'science':
+        MODEL_NAME = 'scienceModel.bin'
+    elif DATASET == 'scienceMed':
+        MODEL_NAME = 'scienceMedModel.bin'
+    else:
+        print('invalid model, exiting')
+        exit()
+    DICTIONARY = json.load(open('../' + DATASET + '/dict.json')) 
+
+    # Make sure that the output folder exists. If not, create it.
+    
+    if not os.path.exists(OUTPUT_FOLDER):
+        os.makedirs(OUTPUT_FOLDER)
+
+    if pathToTestFile.endswith(".csv"):
+        # read csv file
+        testData = pd.read_csv(pathToTestFile)
+        # First, generate all the expansions for the test set.
+        print("Testing disambiguation of acronyms in file: " + pathToTestFile)
+        # iterate over the rows of the csv file
+        for index, row in testData.iterrows():
+            print("Expanding acronyms in sentence with id: " + str(row['id']))
+            # expand the acronyms in the text
+            predictedExpansion = disambiguateAcronym(row['acronym_'], row['text'])
+            # add the disambiguation in the same row in a new column
+            testData.at[index, 'predictedExpansion'] = predictedExpansion
+            print("Expanded text for sentence with id: " + str(row['id']) + " has been generated.")    
+        # export the expanded text to a file called in the same way as the input
+        outputLocation = OUTPUT_FOLDER +'/'+ DATASET + "Expanded.csv"
+        # store and export csv file
+        testData.to_csv(outputLocation, index=False)
+        print("Output file has been generated at: " + outputLocation + ". Now evaluating generated expansions.")
+        
+        # Then, evaluate whether the generated expansions are correct.
+        
+        # for every row in testData, check if the predicted expansion is the same as the actual expansion
+        correct = 0
+        incorrect = 0
+        for index, row in testData.iterrows():
+            if row['predictedExpansion'] == row['expansion']:
+                correct += 1
+            else:
+                incorrect += 1
+        print("Correct expansions: " + str(correct))
+        print("Incorrect expansions: " + str(incorrect))
+        print("Accuracy: " + str(correct/(correct+incorrect)))
+    else:
+        print("ERROR: Input file is not a csv file. Please provide a csv file as input.")
+        exit()
+        

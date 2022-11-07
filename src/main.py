@@ -96,11 +96,8 @@ if __name__ == "__main__":
                 # add the expanded text in the same row in a new column
                 inputScvFile.at[index, 'fullyExpandedText'] = expandedText
                 print("Expanded text for sentence with id: " + str(row['id']) + " has been stored.")
-                
-                # export the expanded text to a file called in the same way as the input
-                outputLocation = OUTPUT_FOLDER + file
-                # store and export csv file
-                inputScvFile.to_csv(outputLocation, index=False)
-                
-                
-
+            
+            # export the expanded text to a file called in the same way as the input
+            outputLocation = OUTPUT_FOLDER + file
+            # store and export csv file
+            inputScvFile.to_csv(outputLocation, index=False)

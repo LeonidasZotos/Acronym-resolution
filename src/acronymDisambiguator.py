@@ -6,9 +6,9 @@ import transformers
 import tokenizers
 
 from model import BertAD
-DATASET = ' ' # can also be 'scienceMed'
-MODEL_NAME = ' ' # can also be 'scienceMedModel.bin'
-DICTIONARY =  { ' ' : [ ' ' ] }
+DATASET = ' ' # 'science' or 'scienceMed'
+MODEL_NAME = ' ' # 'scienceModel.bin' or 'scienceMedModel.bin'
+DICTIONARY =  { ' ' : [ ' ' ] } # Empty dictionary for now
 
 def sample_text(text, acronym, max_len):
     text = text.split()

@@ -70,15 +70,20 @@ def expandSemantically(acronym):
     properties = {'P31' : 'is an instance of ', 'P361': 'is a part of ', 'P366': 'has use ', 'P1889': 'is different from '}
     results = []
     entities =  find_entity(acronym)
+    wasExpanded = False
     if entities:
+        wasExpanded = True
         description = scrape_for_information(entities[0], 'https://www.wikidata.org/wiki/', '<div class="wikibase-entitytermsview-heading-description ">', '<\/div>')
         for q_property in properties:
             query = create_query(entities[0], q_property)
             result = run_query(query)
             if result:
                 results.append(properties[q_property] + str(result[0]))
-        expansion = str(description) + ', ' + acronym + ' has the following properties: ' + str(results)
+        if results:
+            expansion = str(description) + ', ' + acronym + ' has the following properties: ' + str(results)
+        else:
+            expansion = str(description)
     else:
         expansion = "No additional information found for " + acronym
 
-    return expansion
+    return str(expansion)

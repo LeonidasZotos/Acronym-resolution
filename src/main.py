@@ -86,21 +86,26 @@ if __name__ == "__main__":
             # read csv file
             inputScvFile = pd.read_csv(pathToInputFolder + "/" + file)
             print("Expanding acronyms in csv file" + file)
+            total_acronyms = 0
+            expanded_acronyms = 0
             # iterate over the rows of the csv file
             for index, row in inputScvFile.iterrows():
+                total_acronyms += 1
                 print("Expanding acronyms in sentence with id: " + str(row['id']))
                 # get the text from the row
                 text = row['text']
                 # expand the acronyms in the text
                 expandedText = expandAcronymInSentence(text)
+                if not "No additional information found for" in expandedText:
+                    expanded_acronyms += 1
                 # add the expanded text in the same row in a new column
                 inputScvFile.at[index, 'fullyExpandedText'] = expandedText
                 print("Expanded text for sentence with id: " + str(row['id']) + " has been stored.")
-                
                 # export the expanded text to a file called in the same way as the input
                 outputLocation = OUTPUT_FOLDER + file
                 # store and export csv file
                 inputScvFile.to_csv(outputLocation, index=False)
+            print("Acronym expansion done. " + str(expanded_acronyms) + " out of " + str(total_acronyms) + " were expanded, this is " + str(expanded_acronyms/total_acronyms*100) + "%.")
                 
                 
 

@@ -144,3 +144,6 @@ src/model/scienceMedModel.bin
 science/
 scienceMed/
 
+# Output
+src/output/
+

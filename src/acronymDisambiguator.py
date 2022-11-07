@@ -6,10 +6,9 @@ import transformers
 import tokenizers
 
 from model import BertAD
-DATASET = 'science' #can also be 'scienceMed'
-MODEL_NAME = 'scienceModel.bin' #can also be 'scienceMedModel.bin'
-
-DICTIONARY = json.load(open('../' + DATASET + '/dict.json')) 
+DATASET = ' ' # can also be 'scienceMed'
+MODEL_NAME = ' ' # can also be 'scienceMedModel.bin'
+DICTIONARY =  { ' ' : [ ' ' ] }
 
 def sample_text(text, acronym, max_len):
     text = text.split()
@@ -29,6 +28,7 @@ def process_data(text, acronym, expansion, tokenizer, max_len):
     if n_tokens>120:
         text = sample_text(text, acronym, 120)
 
+    print("Dataset used is called: ", DATASET)
     answers = acronym + ' ' + ' '.join(DICTIONARY[acronym])
     start = answers.find(expansion)
     end = start + len(expansion)

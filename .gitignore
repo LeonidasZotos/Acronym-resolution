@@ -137,7 +137,10 @@ dmypy.json
 .zip
 
 # Bin model
-src/model/model_0.bin
+src/model/scienceModel.bin
+src/model/scienceMedModel.bin
 
 # Data
-data/
+science/
+scienceMed/
+

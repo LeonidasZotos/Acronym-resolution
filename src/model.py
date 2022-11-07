@@ -24,6 +24,4 @@ class BertAD(nn.Module):
     start_logits = start_logits.squeeze(-1)
     end_logits = end_logits.squeeze(-1)
 
-    
-
     return start_logits, end_logits

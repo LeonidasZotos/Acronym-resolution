@@ -6,8 +6,10 @@ import transformers
 import tokenizers
 
 from model import BertAD
+DATASET = 'science' #can also be 'scienceMed'
+MODEL_NAME = 'scienceModel.bin' #can also be 'scienceMedModel.bin'
 
-DICTIONARY = json.load(open('model/dict.json')) 
+DICTIONARY = json.load(open('../' + DATASET + '/dict.json')) 
 
 def sample_text(text, acronym, max_len):
     text = text.split()
@@ -116,12 +118,11 @@ def evaluate_jaccard(text, selected_text, acronym, offsets, idx_start, idx_end):
 def disambiguate(text, acronym):
     MODEL = BertAD()
     vec = MODEL.state_dict()['bert.embeddings.position_ids']
-    chkp = torch.load(os.path.join('model', 'model_0.bin'), map_location='cpu')
+    chkp = torch.load(os.path.join('model', MODEL_NAME), map_location='cpu')
     chkp['bert.embeddings.position_ids'] = vec
     MODEL.load_state_dict(chkp)
     del chkp, vec
-    
-    TOKENIZER = tokenizers.BertWordPieceTokenizer(f"model/vocab.txt", lowercase=True)
+    TOKENIZER = tokenizers.BertWordPieceTokenizer(f"../" + DATASET + "/bert-base-uncased-vocab.txt", lowercase=True)
     MAX_LEN = 256
 
 

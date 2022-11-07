@@ -22,7 +22,7 @@ def expandAcronymInSentence(sentence):
             originalSentence = originalSentence.replace(word, fullExpansion)
     return originalSentence
 
-def expanInputFile(pathToTextFile):
+def expandInputFile(pathToTextFile):
     # Get text from file
     text = open(pathToTextFile, "r").read()
     fileName = pathToTextFile.split("/")[-1]
@@ -58,5 +58,5 @@ if __name__ == "__main__":
     for file in os.listdir(pathToInputFolder):
         if file.endswith(".txt"):
             print("Expanding acronyms in " + file)
-            expanInputFile(pathToInputFolder + "/" + file)
+            expandInputFile(pathToInputFolder + "/" + file)
             print("Acronyms expanded in " + file)

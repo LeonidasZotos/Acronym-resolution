@@ -4,14 +4,40 @@ import os
 import json
 import pandas as pd
 import numpy as np
+import torch
 
+from model import BertAD
 import acronymDisambiguator
 from utils import cleanText, cleanSentence
 from semanticExpansion import expandSemantically    
 
 OUTPUT_FOLDER = "../output/"
 
-def expandAcronymInSentence(sentence):
+
+def initialiseModel(dataset, modelName):
+    # Change size of NN here
+    if dataset == 'science':
+        with open("./model/config.json", "r") as jsonFile:
+            tempConfig = json.load(jsonFile)
+            tempConfig["vocab_size"] = 31090
+        with open("./model/config.json", "w") as jsonFile:
+            json.dump(tempConfig, jsonFile)
+    else:
+        with open("./model/config.json", "r") as jsonFile:
+            tempConfig = json.load(jsonFile)
+            tempConfig["vocab_size"] = 30522
+        with open("./model/config.json", "w") as jsonFile:
+            json.dump(tempConfig, jsonFile)
+    
+    MODEL = BertAD()
+    vec = MODEL.state_dict()['bert.embeddings.position_ids']
+    chkp = torch.load(os.path.join('model', modelName), map_location='cpu')
+    chkp['bert.embeddings.position_ids'] = vec
+    MODEL.load_state_dict(chkp)
+    del chkp, vec
+    return MODEL
+
+def expandAcronymInSentence(sentence, model):
     originalSentence = sentence # save the original sentence so we can replace the acronym with the expanded version
     sentence = cleanSentence(sentence)
     # initialise a 2d array to store the acronyms and their expansions
@@ -21,7 +47,7 @@ def expandAcronymInSentence(sentence):
         # check if the word is an acronym and expand it if it is and it has no brackets
         if re.match(r'^[A-Z][A-Z0-9-]+$', word) and len(word) > 1 and word.find("(") == -1: 
             # First, find which expansion is appropriate
-            expandedAcronym = acronymDisambiguator.disambiguateAcronym(word, originalSentence)
+            expandedAcronym = acronymDisambiguator.disambiguateAcronym(word, originalSentence, model)
             # Then, find the semantic expansion of the acronym
             try:
                 semanticExpansion = expandSemantically(expandedAcronym)
@@ -36,7 +62,7 @@ def expandAcronymInSentence(sentence):
             
     return originalSentence, expansionsInSentence
 
-def expandInputTextFile(pathToTextFile):
+def expandInputTextFile(pathToTextFile, model):
     # Get text from file
     text = open(pathToTextFile, "r").read()
     fileName = pathToTextFile.split("/")[-1]
@@ -49,7 +75,7 @@ def expandInputTextFile(pathToTextFile):
     expandedText = [] # list of sentences with acronyms expanded
     for sentence in sentences:
         # append expanded sentence to expandedText
-        expandedAcronym, _ = expandAcronymInSentence(sentence)
+        expandedAcronym, _ = expandAcronymInSentence(sentence, model)
         expandedText.append(expandedAcronym)
 
     # convert list of sentences to string
@@ -84,6 +110,9 @@ if __name__ == "__main__":
     if not os.path.exists(OUTPUT_FOLDER):
         os.makedirs(OUTPUT_FOLDER)
     
+    #Initialise model
+    model = initialiseModel(acronymDisambiguator.DATASET, acronymDisambiguator.MODEL_NAME)
+    
     # for each file in the folder, run expandInputTextFile
     for file in os.listdir(pathToInputFolder):
         if file.endswith(".txt"):
@@ -105,7 +134,7 @@ if __name__ == "__main__":
                 # get the text from the row
                 text = row['text']
                 # expand the acronyms in the text
-                expandedText, acronymsAndExpansions = expandAcronymInSentence(text)
+                expandedText, acronymsAndExpansions = expandAcronymInSentence(text, model)
                 #check if the acronyms were disambiguated correctly
                 
                 acronymsAndExpansions = np.array(acronymsAndExpansions)

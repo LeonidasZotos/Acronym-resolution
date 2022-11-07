@@ -28,7 +28,6 @@ def process_data(text, acronym, expansion, tokenizer, max_len):
     if n_tokens>120:
         text = sample_text(text, acronym, 120)
 
-    print("Dataset used is called: ", DATASET)
     answers = acronym + ' ' + ' '.join(DICTIONARY[acronym])
     start = answers.find(expansion)
     end = start + len(expansion)

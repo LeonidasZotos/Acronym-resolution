@@ -46,18 +46,20 @@ def expandAcronymInSentence(sentence, model):
     for word in sentence: 
         # check if the word is an acronym and expand it if it is and it has no brackets
         if re.match(r'^[A-Z][A-Z0-9-]+$', word) and len(word) > 1 and word.find("(") == -1: 
-            # First, find which expansion is appropriate
+            if word not in acronymDisambiguator.DICTIONARY:
+                continue
+            # Find which expansion is appropriate
             expandedAcronym = acronymDisambiguator.disambiguateAcronym(word, originalSentence, model)
             # Then, find the semantic expansion of the acronym
             try:
                 semanticExpansion = expandSemantically(expandedAcronym)
             except:
                 semanticExpansion = "ERROR while looking up semantic expansion"
-            # Finally, replace the acronym with the acronym expansion and the semantic expansion
+            # Replace the acronym with the acronym expansion and the semantic expansion
             fullExpansion = expandedAcronym + "(" + semanticExpansion + ")"
             # replace the acronym with the full expansion
             originalSentence = originalSentence.replace(word, fullExpansion, 1)
-            # add the acronym and its expansion to the list
+            # Add the acronym and its expansion to the list
             expansionsInSentence.append((word, expandedAcronym.lower()))
             
     return originalSentence, expansionsInSentence
@@ -135,8 +137,8 @@ if __name__ == "__main__":
                 text = row['text']
                 # expand the acronyms in the text
                 expandedText, acronymsAndExpansions = expandAcronymInSentence(text, model)
-                #check if the acronyms were disambiguated correctly
                 
+                #check if the acronyms were disambiguated correctly
                 acronymsAndExpansions = np.array(acronymsAndExpansions)
                 if row['expansion'] in acronymsAndExpansions:
                     disambiguated_acronyms += 1

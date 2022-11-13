@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import transformers
 
+# This is the model class that is used to create the model.
+
 class BertAD(nn.Module):
   def __init__(self):
     super(BertAD, self).__init__()

@@ -15,7 +15,7 @@ OUTPUT_FOLDER = "../output/"
 
 # Here the model is initialised based on the model inputted in the command line
 def initialiseModel(dataset, modelName):
-    # Change size of NN here
+    # Change size of the model here, depending on the dataset (as vocab size is different)
     if dataset == 'science':
         with open("./model/config.json", "r") as jsonFile:
             tempConfig = json.load(jsonFile)
@@ -29,6 +29,7 @@ def initialiseModel(dataset, modelName):
         with open("./model/config.json", "w") as jsonFile:
             json.dump(tempConfig, jsonFile)
     
+    # Load the model
     MODEL = BertAD()
     vec = MODEL.state_dict()['bert.embeddings.position_ids']
     chkp = torch.load(os.path.join('model', modelName), map_location='cpu')
@@ -38,6 +39,8 @@ def initialiseModel(dataset, modelName):
     return MODEL
 
 def expandAcronymInSentence(sentence, model):
+    # Given a sentence, identifies acronyms and expands them
+    
     originalSentence = sentence # save the original sentence so we can replace the acronym with the expanded version
     sentence = cleanSentence(sentence)
     # initialise a 2d array to store the acronyms and their expansions
@@ -47,6 +50,7 @@ def expandAcronymInSentence(sentence, model):
         # check if the word is an acronym and expand it if it is and it has no brackets
         if re.match(r'^[A-Z][A-Z0-9-]+$', word) and len(word) > 1 and word.find("(") == -1: 
             if word not in acronymDisambiguator.DICTIONARY:
+                # only attempt to expand acronyms that are in the dictionary
                 continue
             # Find which expansion is appropriate
             expandedAcronym = acronymDisambiguator.disambiguateAcronym(word, originalSentence, model)
@@ -69,21 +73,18 @@ def expandInputTextFile(pathToTextFile, model):
     text = open(pathToTextFile, "r").read()
     fileName = pathToTextFile.split("/")[-1]
     
-    print("Cleaning sentences...")
+    # Split text into sentences
     sentences = cleanText(text)
-    print("Text is now split into sentences.")
     
-    print("Expanding acronyms in sentences...")
+    # Expand acronyms in each sentence
     expandedText = [] # list of sentences with acronyms expanded
     for sentence in sentences:
         # append expanded sentence to expandedText
         expandedAcronym, _ = expandAcronymInSentence(sentence, model)
         expandedText.append(expandedAcronym)
 
-    # convert list of sentences to string
+    # convert list of sentences to string, so that it can be written to the output file
     expandedText = " ".join(expandedText)
-
-    print("Acronyms expanded.")
 
     # export the expanded text to a file called in the same way as the input
     outputLocation = OUTPUT_FOLDER + fileName
@@ -96,7 +97,6 @@ if __name__ == "__main__":
     # 2: name of dataset used ["scienceMed" or "science"]
     
     # Determine which model & dictionary to use
-    
     pathToInputFolder = sys.argv[1] 
     acronymDisambiguator.DATASET = sys.argv[2] # science or scienceMed
     if acronymDisambiguator.DATASET == 'science':
@@ -108,14 +108,14 @@ if __name__ == "__main__":
         exit()
     acronymDisambiguator.DICTIONARY = json.load(open('../' + acronymDisambiguator.DATASET + '/dict.json')) 
 
-    # Make sure that the output folder exists. If not, create it.
+    # Make sure that the output folder exists. If not, create it
     if not os.path.exists(OUTPUT_FOLDER):
         os.makedirs(OUTPUT_FOLDER)
     
     #Initialise model
     model = initialiseModel(acronymDisambiguator.DATASET, acronymDisambiguator.MODEL_NAME)
     
-    # for each file in the folder, run expandInputTextFile
+    # for each file in the folder, expand it
     for file in os.listdir(pathToInputFolder):
         if file.endswith(".txt"):
             print("Expanding acronyms in " + file)
@@ -125,7 +125,7 @@ if __name__ == "__main__":
         if file.endswith(".csv"):
             # read csv file
             inputScvFile = pd.read_csv(pathToInputFolder + "/" + file)
-            print("Expanding acronyms in csv file" + file)
+            print("Expanding acronyms in .csv file" + file)
             total_acronyms = 0
             disambiguated_acronyms = 0
             expanded_acronyms = 0
@@ -153,5 +153,7 @@ if __name__ == "__main__":
             outputLocation = OUTPUT_FOLDER + file
             # store and export csv file
             inputScvFile.to_csv(outputLocation, index=False)
+            
+            # Provide evaluation statistics
             print("Acronym disambiguation done. " + str(disambiguated_acronyms) + " out of " + str(total_acronyms) + " were disambiguated, this is " + str(round(disambiguated_acronyms/total_acronyms*100, 2)) + "%.")
             print("Acronym expansion done. " + str(expanded_acronyms) + " out of " + str(total_acronyms) + " were expanded, this is " + str(round(expanded_acronyms/total_acronyms*100, 2)) + "%.")

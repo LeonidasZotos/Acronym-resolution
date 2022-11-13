@@ -481,7 +481,7 @@ def run_k_fold(fold_id):
     
 
 if __name__ == "__main__":    
-  # Do k-fold validation to find best model 
+  # Do 5-fold validation to find best model 
   f0 = run_k_fold(0)
   f1 = run_k_fold(1)
   f2 = run_k_fold(2)

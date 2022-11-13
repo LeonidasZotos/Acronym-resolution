@@ -143,11 +143,13 @@ def disambiguate(text, acronym, model):
     return exp
 
 def disambiguateAcronym(acronym, sentence, model):
+    # Given an acronym and a sentence, disambiguate the acronym using the given model
     try:
         expansion = disambiguate(sentence, acronym, model)
         print("The expansion of ", acronym, "is: ", expansion)
     except:
-        print("ERROR: Acronym", acronym, "not found in dictionary, or some other error occurred.")
+        print("Error while expanding ", acronym, ".")
         return("NO EXPANSION FOUND")
     
-    return expansion.title() #return the expansion with the first letter capitalized
+     #return the expansion with the first letter capitalized
+    return expansion.title()

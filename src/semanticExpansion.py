@@ -3,7 +3,8 @@ import sys
 import requests
 import urllib3
 
-## This function sets up the queries, using the input data.
+## This function sets up the queries, using the input data. 
+# it is a simple query that checks whether an object has a certain property
 def create_query(X, Y):
     query = '''
     SELECT ?answerLabel WHERE {
@@ -17,7 +18,6 @@ def create_query(X, Y):
 ## This function will execute the query and print the 'answer' the data of the query links to.
 def run_query(query):
 	url = 'https://query.wikidata.org/sparql'
-     # TODO: it breaks here because of the query not being JSON
 	data = requests.get(url, params={'query': query, 'format': 'json'}).json()
 	final_results = []
 	for item in data['results']['bindings']:
@@ -38,8 +38,9 @@ def find_entity(line):
         answerList.append(result['id'])
     return answerList          
 
-# This function was created and used to find what properties fit 
+## This function was created and used to find what properties fit 
 # the natural language prompts of what property we wanted to query for
+# It is not used while testing the program
 def find_property(line):
     url = 'https://www.wikidata.org/w/api.php'
     params = {'action':'wbsearchentities',
@@ -65,7 +66,10 @@ def scrape_for_information(input, url, htmlstart, htmlend):
   output = re.sub(htmlend, '', str(output))
 
   return output
-          
+
+## This is the main function of this part of the pipeline. 
+#  It takes an expanded acronym, checks whether there is a description, or properties.
+#  It will then return this additional information which will be placed in the sentence.        
 def expandSemantically(acronym):
     properties = {'P31' : 'is an instance of ', 'P361': 'is a part of ', 'P366': 'has use ', 'P1889': 'is different from '}
     results = []
@@ -74,6 +78,7 @@ def expandSemantically(acronym):
     if entities:
         wasExpanded = True
         description = scrape_for_information(entities[0], 'https://www.wikidata.org/wiki/', '<div class="wikibase-entitytermsview-heading-description ">', '<\/div>')
+        # Checks for thee 4 properties whether the input word has these properties
         for q_property in properties:
             query = create_query(entities[0], q_property)
             result = run_query(query)

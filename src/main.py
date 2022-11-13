@@ -13,7 +13,7 @@ from semanticExpansion import expandSemantically
 
 OUTPUT_FOLDER = "../output/"
 
-
+# Here the model is initialised based on the model inputted in the command line
 def initialiseModel(dataset, modelName):
     # Change size of NN here
     if dataset == 'science':

@@ -119,7 +119,7 @@ if __name__ == "__main__":
     for file in os.listdir(pathToInputFolder):
         if file.endswith(".txt"):
             print("Expanding acronyms in " + file)
-            expandInputTextFile(pathToInputFolder + "/" + file)
+            expandInputTextFile(pathToInputFolder + "/" + file, model)
             print("Acronyms expanded in " + file)
             
         if file.endswith(".csv"):

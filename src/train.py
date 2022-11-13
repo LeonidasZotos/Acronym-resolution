@@ -46,7 +46,6 @@ class config:
   TRAIN_FILE = '../' + dataset + '/train.csv'
   VAL_FILE = '../' + dataset + '/dev.csv'
   EXTERNAL_FILE = '../' + dataset + '/external_data.csv'
-  bertLocation = '../' + dataset + '/bert-base-uncased'
   TOKENIZER = tokenizers.BertWordPieceTokenizer('../' + dataset + '/bert-base-uncased-vocab.txt', lowercase=True)
   DICTIONARY = json.load(open('../' + dataset + '/dict.json'))
   SEED = 42

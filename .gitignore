@@ -1,7 +1,5 @@
 # mac redundant file
 .DS_Store
-# Temporary test input
-input.txt 
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -139,11 +137,3 @@ dmypy.json
 # Bin model
 src/model/scienceModel.bin
 src/model/scienceMedModel.bin
-
-# Data
-science/
-scienceMed/
-
-# Output
-src/output/
-
